@@ -17,7 +17,7 @@ function Post({post}) {
     {post.tags.map((tag)=>(<span key={tag} className="badge rounded-pill text-bg-primary tag-btn">{tag}</span>))}
     </div>
     <div className="alert alert-success reactions" role="alert">
-     {post.reactions} people reacted to your post!
+     {post.reactions.likes + post.reactions.dislikes} people reacted to your post!
   </div>
 </div>
     

@@ -1,98 +1,114 @@
-import React, { useRef } from 'react'
-import { PostList } from '../store/Post-list-store';
-import { useContext } from 'react';
+import React, { useRef, useContext } from "react";
+import { PostList } from "../store/Post-list-store";
 
 const CreatePost = () => {
- const{addPost}=useContext(PostList);
+  const { addPost } = useContext(PostList);
 
+  const userIdElement = useRef();
+  const postTitleElement = useRef();
+  const postBodyElement = useRef();
+  const tagsElement = useRef();
 
- const userIdElement=useRef();
- const postTitleElement=useRef();
- const postBodyElement=useRef();
- const reactionsElement=useRef();
- const tagsElement=useRef();
+  const handleOnSubmit = async (event) => {
+    event.preventDefault();
 
- const handleOnSubmit=(event)=>{
-  event.preventDefault();
-  const userId=userIdElement.current.value;
-  const postTitle=postTitleElement.current.value;
-  const postBody=postBodyElement.current.value;
-  const reactions=reactionsElement.current.value;
-  const tags=tagsElement.current.value.split(' ');
-  userIdElement.current.value="";
-  postTitleElement.current.value="";
-  postBodyElement.current.value="";
-  reactionsElement.current.value="";
-  tagsElement.current.value="";
-  
+    const userId = parseInt(userIdElement.current.value, 10); // must be number
+    const postTitle = postTitleElement.current.value.trim();
+    const postBody = postBodyElement.current.value.trim();
+    const tags = tagsElement.current.value
+      .split(" ")
+      .map((tag) => tag.trim())
+      .filter(Boolean);
 
+    if (!userId || !postTitle) {
+      alert("User ID and Title are required!");
+      return;
+    }
 
+    // Build payload
+    const payload = {
+      title: postTitle,
+      userId,
+    };
+    if (postBody) payload.body = postBody;
+    if (tags.length) payload.tags = tags;
 
+    try {
+      const res = await fetch("https://dummyjson.com/posts/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
+      if (!res.ok) {
+        throw new Error(`Failed with status ${res.status}`);
+      }
 
+      const post = await res.json();
+      addPost(post);
 
-  addPost(userId,postTitle,postBody,reactions,tags);
-
- }
+      // reset form
+      userIdElement.current.value = "";
+      postTitleElement.current.value = "";
+      postBodyElement.current.value = "";
+      tagsElement.current.value = "";
+    } catch (error) {
+      console.error("Error creating post:", error);
+      alert("Failed to create post. Please try again.");
+    }
+  };
 
   return (
-
-    <form className='create-post' onSubmit={handleOnSubmit}>
+    <form className="create-post" onSubmit={handleOnSubmit}>
       <div className="mb-3">
-        <label htmlFor="userId" className="form-label" >User ID</label>
+        <label htmlFor="userId" className="form-label">User ID</label>
+        <input
+          type="number"
+          ref={userIdElement}
+          className="form-control"
+          id="userId"
+          placeholder="Enter your User ID"
+          required
+        />
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="title" className="form-label">Post Title</label>
         <input
           type="text"
-          ref={userIdElement}
-          className="form-control" 
-          id="userId" 
-          placeholder="Enter your User id"
-        />
-      </div>
-      <div className="mb-3">
-        <label htmlFor="title" className="form-label" >Post Title</label>
-        <input 
-          type="text" 
           ref={postTitleElement}
-          className="form-control" 
-          id="title" 
-          placeholder="how are feeling Today!"
+          className="form-control"
+          id="title"
+          placeholder="What's on your mind?"
+          required
         />
       </div>
+
       <div className="mb-3">
-        <label htmlFor="body" className="form-label" >Caption</label>
+        <label htmlFor="body" className="form-label">Caption</label>
         <textarea
-          type="text" 
           ref={postBodyElement}
           rows="4"
-          className="form-control" 
-          id="body" 
-          placeholder="Tell us more"
+          className="form-control"
+          id="body"
+          placeholder="Tell us more..."
         />
       </div>
+
       <div className="mb-3">
-        <label htmlFor="reactions" className="form-label" >Number</label>
+        <label htmlFor="tags" className="form-label">HashTags</label>
         <input
-        type='text'
-        ref={reactionsElement}
-        className="form-control" 
-        id="reactions" 
-        placeholder="Enter your lucky number or any number"
+          type="text"
+          ref={tagsElement}
+          className="form-control"
+          id="tags"
+          placeholder="#fun #life #travel"
         />
       </div>
-      <div className="mb-3">
-        <label htmlFor="tags" className="form-label" >HashTags</label>
-        <input
-        type='text'
-        ref={tagsElement}
-        className="form-control" 
-        id="tags"
-        />
-      </div>
-      
-      
+
       <button type="submit" className="btn btn-primary">POST</button>
     </form>
   );
-}
+};
 
 export default CreatePost;

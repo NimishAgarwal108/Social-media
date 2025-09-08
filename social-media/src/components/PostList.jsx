@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import  { useContext} from 'react'
 import Post from "./Post";
 import { PostList as PostListData} from '../store/Post-list-store';
 import WelcomeMessage from './WelcomeMessage';

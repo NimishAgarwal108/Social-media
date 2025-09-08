@@ -1,8 +1,10 @@
 import React, { useRef, useContext } from "react";
 import { PostList } from "../store/Post-list-store";
+import { useNavigate } from "react-router-dom";
 
 const CreatePost = () => {
   const { addPost } = useContext(PostList);
+  const navigate=useNavigate();
 
   const userIdElement = useRef();
   const postTitleElement = useRef();
@@ -46,6 +48,7 @@ const CreatePost = () => {
 
       const post = await res.json();
       addPost(post);
+      navigate("/");
 
       // reset form
       userIdElement.current.value = "";
@@ -67,7 +70,7 @@ const CreatePost = () => {
           ref={userIdElement}
           className="form-control"
           id="userId"
-          placeholder="Enter your User ID"
+          placeholder="Enter user id (any number between 1 to 100)"
           required
         />
       </div>
